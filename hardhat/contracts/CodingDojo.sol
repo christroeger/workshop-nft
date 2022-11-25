@@ -115,7 +115,12 @@ contract CodingDojo {
     /// @param _to The new owner
     /// @param _tokenId The NFT to transfer
     function transferFrom(address _from, address _to, uint256 _tokenId) external payable {
-
+        require(_from != address(0), "from zero address");
+        require(_to != address(0), "to zero address");
+        require(_nfts[_tokenId].owner == _from, 'owner mismatch');
+        _nfts[_tokenId].owner = _to;
+        _nftCount[_from]--;
+        _nftCount[_to]++;
     }
 
     /// @notice Enumerate valid NFTs
@@ -124,7 +129,8 @@ contract CodingDojo {
     /// @return The token identifier for the `_index`th NFT,
     ///  (sort order not specified)
     function tokenByIndex(uint256 _index) external view returns (uint256) {
-        return 0;
+        require(_index + 1 < _totalCount, 'index out of range');
+        return _index + 1;
     }
 
     /// @notice Enumerate NFTs assigned to an owner
@@ -135,6 +141,20 @@ contract CodingDojo {
     /// @return The token identifier for the `_index`th NFT assigned to `_owner`,
     ///   (sort order not specified)
     function tokenOfOwnerByIndex(address _owner, uint256 _index) external view returns (uint256) {
-        return 0;
+        require(_index < _nftCount[_owner], 'index out of range');
+        uint256 tokenId;
+        uint256 currentIdx;
+        bool found = false;
+        for (uint256 i = 0; i < _totalCount; ++i) {
+            if (_nfts[i].owner == _owner) {
+                if (currentIdx == _index) {
+                    found = true;
+                    tokenId = i;
+                }
+                currentIdx++;
+            }
+        }
+        require(found, 'token not found');
+        return tokenId;
     }
 }
