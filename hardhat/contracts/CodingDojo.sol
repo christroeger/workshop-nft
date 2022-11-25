@@ -118,6 +118,7 @@ contract CodingDojo {
         require(_from != address(0), "from zero address");
         require(_to != address(0), "to zero address");
         require(_nfts[_tokenId].owner == _from, 'owner mismatch');
+        require(msg.sender == _from, 'message sender does not match owner');
         _nfts[_tokenId].owner = _to;
         _nftCount[_from]--;
         _nftCount[_to]++;
